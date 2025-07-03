@@ -5,7 +5,7 @@
 [![Atata docs](https://img.shields.io/badge/docs-Atata_Framework-orange.svg)](https://atata.io)
 [![X](https://img.shields.io/badge/follow-@AtataFramework-blue.svg)](https://x.com/AtataFramework)
 
-**Atata.Testcontainers** is a .NET library that adds container sessions to [Atata](https://github.com/atata-framework/atata) using Testcontainers library .
+**Atata.Testcontainers** is a .NET library that adds container sessions to [Atata](https://github.com/atata-framework/atata) using Testcontainers library.
 
 *The package targets .NET Standard 2.0, which supports .NET 5+, .NET Framework 4.6.1+ and .NET Core/Standard 2.0+.*
 
