@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging.Abstractions;
+﻿using Docker.DotNet.Models;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Atata.Testcontainers;
 
@@ -31,7 +32,7 @@ public abstract class ContainerSessionBuilder<TContainer, TSession, TBuilder> : 
     /// <returns>The same <typeparamref name="TBuilder"/> instance.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="containerBuilderCreator"/> is <see langword="null"/>.</exception>
     public TBuilder Use<TContainerBuilder>(Func<TContainerBuilder> containerBuilderCreator)
-        where TContainerBuilder : IContainerBuilder<TContainerBuilder, TContainer>
+        where TContainerBuilder : IAbstractBuilder<TContainerBuilder, TContainer, CreateContainerParameters>
     {
         Guard.ThrowIfNull(containerBuilderCreator);
 
