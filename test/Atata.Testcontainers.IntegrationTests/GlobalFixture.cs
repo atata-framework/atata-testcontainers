@@ -1,7 +1,4 @@
-﻿[assembly: SetCulture("en-US")]
-[assembly: Parallelizable(ParallelScope.Fixtures)]
-
-namespace Atata.Testcontainers.IntegrationTests;
+﻿namespace Atata.Testcontainers.IntegrationTests;
 
 public sealed class GlobalFixture : AtataGlobalFixture
 {
