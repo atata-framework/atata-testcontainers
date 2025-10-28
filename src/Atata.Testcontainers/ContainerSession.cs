@@ -13,4 +13,9 @@
 /// </summary>
 public class ContainerSession : ContainerSession<IContainer>
 {
+    /// <summary>
+    /// Creates <see cref="ContainerSessionBuilder"/> instance for <see cref="ContainerSession"/> configuration.
+    /// </summary>
+    /// <returns>The created <see cref="ContainerSessionBuilder"/> instance.</returns>
+    public static new ContainerSessionBuilder CreateBuilder() => new();
 }

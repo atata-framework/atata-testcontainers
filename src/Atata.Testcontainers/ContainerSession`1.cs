@@ -29,6 +29,13 @@ public class ContainerSession<TContainer> : AtataSession
 
     internal ContainerLogsSaveConfiguration LogsSaveConfiguration { get; set; } = null!;
 
+    /// <summary>
+    /// Creates <see cref="ContainerSessionBuilder{TContainer}"/> instance for <see cref="ContainerSession{TContainer}"/> configuration.
+    /// </summary>
+    /// <returns>The created <see cref="ContainerSessionBuilder{TContainer}"/> instance.</returns>
+    [SuppressMessage("Design", "CA1000:Do not declare static members on generic types", Justification = "It should be here.")]
+    public static ContainerSessionBuilder<TContainer> CreateBuilder() => new();
+
     protected override async Task StartAsync(CancellationToken cancellationToken) =>
         await Log.ExecuteSectionAsync(
             new LogSection("Start container", LogLevel.Trace),
