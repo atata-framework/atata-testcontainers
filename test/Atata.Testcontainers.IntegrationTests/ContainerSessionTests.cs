@@ -8,7 +8,7 @@ public sealed class ContainerSessionTests : AtataTestSuite
     {
         // Arrange
         await using var containerSession = await Context.Sessions.AddContainer()
-            .Use(x => x.WithImage("hello-world:latest"))
+            .UseImage(ImageNames.HelloWorldImageName)
             .BuildAsync();
 
         // Act

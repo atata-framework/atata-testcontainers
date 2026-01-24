@@ -8,7 +8,7 @@ public sealed class ContainerSessionBuilderTests : AtataTestSuite
     {
         // Act
         var containerSession = await Context.Sessions.AddContainer()
-            .Use(x => x.WithImage("hello-world:latest"))
+            .UseImage(ImageNames.HelloWorldImageName)
             .BuildAsync();
 
         // Assert
@@ -23,7 +23,7 @@ public sealed class ContainerSessionBuilderTests : AtataTestSuite
         // Act
         await using AtataContext context = await AtataContext.CreateDefaultNonScopedBuilder()
             .Sessions.AddContainer(x => x
-                .Use(x => x.WithImage("hello-world:latest")))
+                .UseImage(ImageNames.HelloWorldImageName))
             .BuildAsync();
         var containerSession = context.Sessions.Get<ContainerSession>();
 
@@ -38,8 +38,7 @@ public sealed class ContainerSessionBuilderTests : AtataTestSuite
     {
         // Act
         var containerSession = await Context.Sessions.AddContainer<WebDriverContainer>()
-            .Use(() => new WebDriverBuilder()
-                .WithBrowser(new WebDriverBrowser("selenium/standalone-chrome:latest")))
+            .Use(() => new WebDriverBuilder(ImageNames.SeleniumImageName))
             .BuildAsync();
 
         // Assert
@@ -54,8 +53,7 @@ public sealed class ContainerSessionBuilderTests : AtataTestSuite
         // Act
         await using AtataContext context = await AtataContext.CreateDefaultNonScopedBuilder()
             .Sessions.AddContainer<WebDriverContainer>(x => x
-                .Use(() => new WebDriverBuilder()
-                    .WithBrowser(new WebDriverBrowser("selenium/standalone-chrome:latest"))))
+                .Use(() => new WebDriverBuilder(ImageNames.SeleniumImageName)))
             .BuildAsync();
         var containerSession = context.Sessions.Get<ContainerSession<WebDriverContainer>>();
 
@@ -70,7 +68,7 @@ public sealed class ContainerSessionBuilderTests : AtataTestSuite
     {
         // Act
         var containerSession = await Context.Sessions.AddContainer()
-            .Use(x => x.WithImage("hello-world:latest"))
+            .UseImage(ImageNames.HelloWorldImageName)
             .UseLogsSaveConfiguration(x => x.StdoutFileIncluded = true)
             .BuildAsync();
 
@@ -86,7 +84,7 @@ public sealed class ContainerSessionBuilderTests : AtataTestSuite
     {
         // Act
         var containerSession = await Context.Sessions.AddContainer()
-            .Use(x => x.WithImage("hello-world:latest"))
+            .UseImage(ImageNames.HelloWorldImageName)
             .UseLogsSaveConfiguration(x => x.StdoutFileIncluded = false)
             .BuildAsync();
 

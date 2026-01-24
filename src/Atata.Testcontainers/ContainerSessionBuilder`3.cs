@@ -14,6 +14,8 @@ public abstract class ContainerSessionBuilder<TContainer, TSession, TBuilder> : 
     where TSession : ContainerSession<TContainer>, new()
     where TBuilder : ContainerSessionBuilder<TContainer, TSession, TBuilder>
 {
+    private List<object> _containerConfigurations = [];
+
     private Func<TContainer>? _containerCreator;
 
     private Func<ILogger> _containerLoggerCreator = () => NullLogger.Instance;
@@ -45,8 +47,32 @@ public abstract class ContainerSessionBuilder<TContainer, TSession, TBuilder> : 
             if (containerLogger is not null)
                 containerBuilder = containerBuilder.WithLogger(containerLogger);
 
+            if (_containerConfigurations.Count > 0)
+            {
+                containerBuilder = _containerConfigurations
+                    .Cast<Func<TContainerBuilder, TContainerBuilder>>()
+                    .Aggregate(
+                        containerBuilder,
+                        (current, configure) => configure.Invoke(current));
+            }
+
             return containerBuilder.Build();
         };
+        return (TBuilder)this;
+    }
+
+    /// <summary>
+    /// Adds a specific container builder configuration.
+    /// </summary>
+    /// <typeparam name="TContainerBuilder">The type of the container builder.</typeparam>
+    /// <param name="configure">A function delegate to configure the container builder.</param>
+    /// <returns>The same <see cref="ContainerSessionBuilder"/> instance.</returns>
+    public TBuilder Configure<TContainerBuilder>(Func<TContainerBuilder, TContainerBuilder> configure)
+        where TContainerBuilder : IAbstractBuilder<TContainerBuilder, TContainer, CreateContainerParameters>
+    {
+        if (configure is not null)
+            _containerConfigurations.Add(configure);
+
         return (TBuilder)this;
     }
 
@@ -97,8 +123,14 @@ public abstract class ContainerSessionBuilder<TContainer, TSession, TBuilder> : 
         base.ValidateConfiguration();
 
         if (_containerCreator is null)
-            throw new AtataSessionBuilderValidationException("Container is not set. Use 'Use' method to set it.");
+        {
+            string errorMessage = BuildContainerCreatorIsNotSetErrorMessage();
+            throw new AtataSessionBuilderValidationException(errorMessage);
+        }
     }
+
+    private protected virtual string BuildContainerCreatorIsNotSetErrorMessage() =>
+        $"Container creator is not set. Use '{nameof(Use)}' method to set it.";
 
     protected override void ConfigureSession(TSession session)
     {
@@ -128,6 +160,7 @@ public abstract class ContainerSessionBuilder<TContainer, TSession, TBuilder> : 
     {
         base.OnClone(copy);
 
+        copy._containerConfigurations = [.. _containerConfigurations];
         copy.LogsSaveConfiguration = LogsSaveConfiguration.Clone();
     }
 }

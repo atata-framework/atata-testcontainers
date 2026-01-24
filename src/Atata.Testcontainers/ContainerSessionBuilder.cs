@@ -6,15 +6,17 @@
 public class ContainerSessionBuilder : ContainerSessionBuilder<IContainer, ContainerSession, ContainerSessionBuilder>
 {
     /// <summary>
-    /// Configures the builder to use a specific container builder.
+    /// Configures the builder to use a <see cref="ContainerBuilder"/> with the specified image name.
     /// </summary>
-    /// <param name="containerBuilder">The function to configure the container builder.</param>
+    /// <param name="imageName">The image name.</param>
     /// <returns>The same <see cref="ContainerSessionBuilder"/> instance.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="containerBuilder"/> is <see langword="null"/>.</exception>
-    public ContainerSessionBuilder Use(Func<ContainerBuilder, ContainerBuilder> containerBuilder)
+    public ContainerSessionBuilder UseImage(string imageName)
     {
-        Guard.ThrowIfNull(containerBuilder);
+        Guard.ThrowIfNullOrWhitespace(imageName);
 
-        return Use(() => containerBuilder.Invoke(new ContainerBuilder()));
+        return Use(() => new ContainerBuilder(imageName));
     }
+
+    private protected override string BuildContainerCreatorIsNotSetErrorMessage() =>
+        $"Container creator is not set. Use either '{nameof(UseImage)}' or '{nameof(Use)}' method to set it.";
 }
