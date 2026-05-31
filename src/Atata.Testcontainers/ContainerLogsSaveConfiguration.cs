@@ -12,31 +12,31 @@ public sealed class ContainerLogsSaveConfiguration
 
     /// <summary>
     /// Gets or sets the template for the stdout log file name.
-    /// The default value is "{container-image-fullname}-stdout.log".
+    /// The default value is <c>"{container-image-fullname}-stdout.log"</c>.
     /// </summary>
     public string StdoutFileNameTemplate { get; set; } = "{container-image-fullname}-stdout.log";
 
     /// <summary>
     /// Gets or sets a value indicating whether to include the stdout log file.
-    /// The default value is <c>true</c>.
+    /// The default value is <see langword="true"/>.
     /// </summary>
     public bool StdoutFileIncluded { get; set; } = true;
 
     /// <summary>
     /// Gets or sets the template for the stderr log file name.
-    /// The default value is "{container-image-fullname}-stderr.log".
+    /// The default value is <c>"{container-image-fullname}-stderr.log"</c>.
     /// </summary>
     public string StderrFileNameTemplate { get; set; } = "{container-image-fullname}-stderr.log";
 
     /// <summary>
     /// Gets or sets a value indicating whether to include the stderr log file.
-    /// The default value is <c>true</c>.
+    /// The default value is <see langword="true"/>.
     /// </summary>
     public bool StderrFileIncluded { get; set; } = true;
 
     /// <summary>
     /// Gets or sets a value indicating whether to include timestamps in the logs.
-    /// The default value is <c>true</c>.
+    /// The default value is <see langword="true"/>.
     /// </summary>
     public bool TimestampsIncluded { get; set; } = true;
 
