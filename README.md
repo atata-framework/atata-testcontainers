@@ -9,6 +9,218 @@
 
 *The package targets .NET 8.0 and .NET Framework 4.6.2.*
 
+## Features
+
+- **Sessions**. Adds both generic and non-generic container session types.
+- **Artifacts**. Saves container logs as Atata artifacts.
+
+## Installation
+
+Install the package via .NET CLI:
+
+```bash
+dotnet add package Atata.Testcontainers
+```
+
+Or using Package Manager:
+
+```powershell
+Install-Package Atata.Testcontainers
+```
+
+## Dependencies
+
+- [Atata](https://www.nuget.org/packages/Atata)
+- [Testcontainers](https://www.nuget.org/packages/Testcontainers)
+
+## Usage
+
+Add container sessions to `AtataContextBuilder` or `AtataSessionCollection` using the provided `AddContainer` extension methods.
+
+### Add non-generic container session to `AtataContextBuilder`
+
+```cs
+builder.Sessions.AddContainer(x => x
+    .UseImage("hello-world:latest"));
+```
+
+### Add non-generic container session to `AtataSessionCollection`
+
+```cs
+var containerSession = await Context.Sessions.AddContainer()
+    .UseImage("hello-world:latest")
+    .BuildAsync();
+```
+
+### Add generic container session to `AtataContextBuilder`
+
+```cs
+builder.Sessions.AddContainer<RedisContainer>(x => x
+    .Use(() => new RedisBuilder("redis:8.8.0")));
+```
+
+```cs
+var containerSession = Context.Sessions.GetRecursively<ContainerSession<RedisContainer>>();
+
+string connectionString = containerSession.Container.GetConnectionString();
+```
+
+*`RedisContainer` comes from Testcontainers.Redis package.*
+
+### Add non-generic container session to `AtataSessionCollection`
+
+```cs
+var containerSession = await Context.Sessions.AddContainer<RedisContainer>(x => x
+    .Use(() => new RedisBuilder("redis:8.8.0")))
+    .BuildAsync();
+
+string connectionString = containerSession.Container.GetConnectionString();
+```
+
+### Configure container logs saving
+
+```cs
+var containerSession = await Context.Sessions.AddContainer()
+    .UseImage("hello-world:latest")
+    .UseLogsSaveConfiguration(x => x.StdoutFileIncluded = false)
+    .BuildAsync();
+```
+
+## API
+
+### `ContainerSessionBuilder<TContainer, TSession, TBuilder>`
+
+Represents a builder for creating and configuring a container session.
+
+```cs
+public abstract class ContainerSessionBuilder<TContainer, TSession, TBuilder> :
+    AtataSessionBuilder<TSession, TBuilder>
+    where TContainer : IContainer
+    where TSession : ContainerSession<TContainer>, new()
+    where TBuilder : ContainerSessionBuilder<TContainer, TSession, TBuilder>
+{
+    // Gets the configuration for saving container logs.
+    public ContainerLogsSaveConfiguration LogsSaveConfiguration { get; }
+
+    // Configures the builder to use a specific container builder.
+    public TBuilder Use<TContainerBuilder>(Func<TContainerBuilder> containerBuilderCreator)
+        where TContainerBuilder : IAbstractBuilder<TContainerBuilder, TContainer, CreateContainerParameters>;
+
+    // Adds a specific container builder configuration.
+    public TBuilder Configure<TContainerBuilder>(Func<TContainerBuilder, TContainerBuilder> configure)
+        where TContainerBuilder : IAbstractBuilder<TContainerBuilder, TContainer, CreateContainerParameters>;
+
+    // Configures the builder to use a specific logger for the container.
+    public TBuilder UseContainerLogger(Func<ILogger> containerLoggerCreator);
+
+    // Configures the builder to use a specific configuration for saving container logs.
+    public TBuilder UseLogsSaveConfiguration(Action<ContainerLogsSaveConfiguration> configure);
+
+    // Configures the builder to use a specific instance of <see cref="ContainerLogsSaveConfiguration"/>.
+    public TBuilder UseLogsSaveConfiguration(ContainerLogsSaveConfiguration configuration);
+}
+```
+
+### `ContainerSessionBuilder<TContainer>`
+
+Represents a builder for creating and configuring a container session for a specific container type.
+
+```cs
+public class ContainerSessionBuilder<TContainer> :
+    ContainerSessionBuilder<TContainer, ContainerSession<TContainer>, ContainerSessionBuilder<TContainer>>
+    where TContainer : IContainer
+{
+}
+```
+
+### `ContainerSessionBuilder`
+
+Represents a builder for creating and configuring a container session.
+
+```cs
+public class ContainerSessionBuilder : ContainerSessionBuilder<IContainer, ContainerSession, ContainerSessionBuilder>
+{
+    // Configures the builder to use a ContainerBuilder with the specified image name.
+    public ContainerSessionBuilder UseImage(string imageName);
+}
+```
+
+### `ContainerLogsSaveConfiguration`
+
+A configuration for saving container logs.
+
+```cs
+public sealed class ContainerLogsSaveConfiguration
+{
+    // Gets the default configuration instance.
+    public static ContainerLogsSaveConfiguration Default { get; }
+
+    // Gets or sets the template for the stdout log file name.
+    // The default value is "{container-image-fullname}-stdout.log".
+    public string StdoutFileNameTemplate { get; set; }
+
+    // Gets or sets a value indicating whether to include the stdout log file.
+    // The default value is true.
+    public bool StdoutFileIncluded { get; set; }
+
+    // Gets or sets the template for the stderr log file name.
+    // The default value is "{container-image-fullname}-stderr.log".
+    public string StderrFileNameTemplate { get; set; }
+
+    // Gets or sets a value indicating whether to include the stderr log file.
+    // The default value is true.
+    public bool StderrFileIncluded { get; set; }
+
+    // Gets or sets a value indicating whether to include timestamps in the logs.
+    // The default value is true.
+    public bool TimestampsIncluded { get; set; }
+
+    // Creates a new instance of ContainerLogsSaveConfiguration that is a copy of the current instance.
+    public ContainerLogsSaveConfiguration Clone();
+}
+```
+
+### `ContainerSession<TContainer>`
+
+Represents a session that manages `TContainer` instance 
+and provides a set of functionality to manipulate the container.
+
+The session has additional variables in `AtataSession.Variables`:
+`{container-image-fullname}`, `{container-image-repository}`, `{container-image-registry}`,
+`{container-image-tag}`, `{container-image-digest}`.
+
+```cs
+public class ContainerSession<TContainer> : AtataSession
+    where TContainer : IContainer
+{
+    // Gets the current `ContainerSession<TContainer> instance in scope of AtataContext.Current.
+    // Returns null if there is no such session or AtataContext.Current is null.
+    public static ContainerSession<TContainer>? Current { get; }
+
+    // Gets the container.
+    public TContainer Container { get; }
+
+    // Creates ContainerSessionBuilder<TContainer> instance for ContainerSession<TContainer> configuration.
+    public static ContainerSessionBuilder<TContainer> CreateBuilder();
+
+    // Extracts the file from container to Artifacts directory.
+    public async Task<FileSubject> ExtractFileToArtifactsAsync(
+        string containerFilePath,
+        string? artifactType = null,
+        string? artifactTitle = null,
+        CancellationToken cancellationToken = default);
+```
+
+### `ContainerSession`
+
+```cs
+public class ContainerSession : ContainerSession<IContainer>
+{
+    // Creates ContainerSessionBuilder instance for ContainerSession configuration.
+    public static new ContainerSessionBuilder CreateBuilder();
+}
+```
+
 ## Community
 
 - Slack: [https://atata-framework.slack.com](https://join.slack.com/t/atata-framework/shared_invite/zt-5j3lyln7-WD1ZtMDzXBhPm0yXLDBzbA)
