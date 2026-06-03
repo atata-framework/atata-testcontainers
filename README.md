@@ -35,7 +35,7 @@ Install-Package Atata.Testcontainers
 
 ## Usage
 
-Add container sessions to `AtataContextBuilder` or `AtataSessionCollection` using the provided `AddContainer` extension methods.
+Add container sessions to `AtataContextBuilder` or `AtataContext` using the provided `AddContainer` extension methods.
 
 ### Add non-generic container session to `AtataContextBuilder`
 
@@ -44,7 +44,7 @@ builder.Sessions.AddContainer(x => x
     .UseImage("hello-world:latest"));
 ```
 
-### Add non-generic container session to `AtataSessionCollection`
+### Add non-generic container session to `AtataContext`
 
 ```cs
 var containerSession = await Context.Sessions.AddContainer()
@@ -67,7 +67,7 @@ string connectionString = containerSession.Container.GetConnectionString();
 
 *`RedisContainer` comes from Testcontainers.Redis package.*
 
-### Add non-generic container session to `AtataSessionCollection`
+### Add non-generic container session to `AtataContext`
 
 ```cs
 var containerSession = await Context.Sessions.AddContainer<RedisContainer>(x => x
