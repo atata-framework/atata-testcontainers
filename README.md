@@ -88,6 +88,72 @@ var containerSession = await Context.Sessions.AddContainer()
 
 ## API
 
+### `ContainerSessionAtataSessionsBuilderExtensions`
+
+A set of extension methods for `AtataSessionsBuilder` to add and configure `ContainerSessionBuilder` and `ContainerSessionBuilder<TContainer>` session builders.
+
+```cs
+public static class ContainerSessionAtataSessionsBuilderExtensions
+{
+    // Adds a new instance of ContainerSessionBuilder builder.
+    public static AtataContextBuilder AddContainer(
+        this AtataSessionsBuilder builder,
+        Action<ContainerSessionBuilder>? configure = null);
+
+    // Adds a new instance of ContainerSessionBuilder<TContainer> builder.
+    public static AtataContextBuilder AddContainer<TContainer>(
+        this AtataSessionsBuilder builder,
+        Action<ContainerSessionBuilder<TContainer>>? configure = null)
+        where TContainer : IContainer;
+
+    // Configures existing nameless ContainerSessionBuilder session builder.
+    public static AtataContextBuilder ConfigureContainer(
+        this AtataSessionsBuilder builder,
+        Action<ContainerSessionBuilder> configure,
+        ConfigurationMode mode = default);
+
+    // Configures existing nameless ContainerSessionBuilder<TContainer> session builder.
+    public static AtataContextBuilder ConfigureContainer<TContainer>(
+        this AtataSessionsBuilder builder,
+        Action<ContainerSessionBuilder<TContainer>> configure,
+        ConfigurationMode mode = default)
+        where TContainer : IContainer;
+
+    // Configures existing ContainerSessionBuilder session builder that has the specified name.
+    public static AtataContextBuilder ConfigureContainer(
+        this AtataSessionsBuilder builder,
+        string? name,
+        Action<ContainerSessionBuilder> configure,
+        ConfigurationMode mode = default);
+
+    // Configures existing ContainerSessionBuilder<TContainer> session builder that has the specified name.
+    public static AtataContextBuilder ConfigureContainer<TContainer>(
+        this AtataSessionsBuilder builder,
+        string? name,
+        Action<ContainerSessionBuilder<TContainer>> configure,
+        ConfigurationMode mode = default)
+        where TContainer : IContainer;
+}
+```
+
+### `ContainerSessionAtataSessionCollectionExtensions`
+
+```cs
+public static class ContainerSessionAtataSessionCollectionExtensions
+{
+    // Creates a new ContainerSessionBuilder and adds it to the collection.
+    public static ContainerSessionBuilder AddContainer(
+        this AtataSessionCollection collection,
+        Action<ContainerSessionBuilder>? configure = null);
+
+    // Creates a new ContainerSessionBuilder<TContainer> and adds it to the collection.
+    public static ContainerSessionBuilder<TContainer> AddContainer<TContainer>(
+        this AtataSessionCollection collection,
+        Action<ContainerSessionBuilder<TContainer>>? configure = null)
+        where TContainer : IContainer;
+}
+```
+
 ### `ContainerSessionBuilder<TContainer, TSession, TBuilder>`
 
 Represents a builder for creating and configuring a container session.
